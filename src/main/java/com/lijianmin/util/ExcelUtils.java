@@ -8,6 +8,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +35,7 @@ public class ExcelUtils {
      *
      * @param request  请求域
      * @param response 响应域
-     * @param list     导出数据
+     * @param list     导出数据->至少要有一个元素
      * @param clazz    数据类型
      * @Author: jianmin.li
      * @Date: 2019/3/8 21:50
@@ -45,6 +46,9 @@ public class ExcelUtils {
         Assert.notNull(filename,"The filename must not be null !");
         if (!EXCEL_EXTENSION.equals(FilenameUtils.getExtension(filename))) {
             throw new RuntimeException("The filename's extension must be 'xlsx'");
+        }
+        if (CollectionUtils.isEmpty(list)) {
+            throw new NullPointerException("The list must have at least one element");
         }
         int size = list.size();
         int merchant = size / MAX_SHEET_COUNT;
@@ -69,7 +73,7 @@ public class ExcelUtils {
                 writer.write(baseRowModels,sheet);
             }
         } catch (IOException e) {
-            log.error("============An IOException occurred while exporting the Excel!",e);
+            log.error("An IOException occurred while exporting the Excel!",e);
         } finally {
             writer.finish();
             if (null != out) {
